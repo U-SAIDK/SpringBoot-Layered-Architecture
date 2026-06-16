@@ -1,0 +1,618 @@
+    # SPRING BOOT EXCEPTION LAYER NOTES
+    
+    # OVERVIEW
+    
+    The Exception Layer is responsible for handling errors that occur during application execution and returning meaningful, standardized responses to the client.
+    
+    Instead of exposing raw Java exceptions or generic server errors, the Exception Layer converts them into user-friendly API responses.
+    
+    In simple words:
+    
+    Exception Layer acts as a centralized error management system for the entire application.
+    
+    ---
+    
+    ## WHY EXCEPTION HANDLING IS NEEDED
+    
+    Consider the current project flow:
+    
+    Client
+    ↓
+    Controller
+    ↓
+    Service
+    ↓
+    Repository
+    
+    Suppose a user requests:
+    
+    GET /getEmployee/999
+    
+    Repository returns:
+    
+    null
+    
+    Service tries:
+    
+    employee.getName()
+    
+    Result:
+    
+    NullPointerException
+    
+    Spring returns:
+    
+    500 Internal Server Error
+    
+    Response:
+    
+    {
+    "timestamp":"...",
+    "status":500,
+    "error":"Internal Server Error"
+    }
+    
+    Problem:
+    
+    The client has no idea what actually happened.
+    
+    ---
+    
+    ## PROBLEMS BEFORE EXCEPTION LAYER
+    
+    Problem 1: Unclear Error Messages
+    
+    Client receives:
+    
+    500 Internal Server Error
+    
+    Instead of:
+    
+    Employee Not Found
+    
+    Problem 2: Repeated Try-Catch Blocks
+    
+    Every controller may contain:
+    
+    try{
+    ...
+    }
+    catch(Exception e){
+    ...
+    }
+    
+    This creates duplicate code.
+    
+    Problem 3: Inconsistent Error Responses
+    
+    One API returns:
+    
+    {
+    "error":"Employee Not Found"
+    }
+    
+    Another returns:
+    
+    {
+    "message":"User Missing"
+    }
+    
+    Another returns:
+    
+    {
+    "status":"Failed"
+    }
+    
+    No standard format exists.
+    
+    Problem 4: Difficult Maintenance
+    
+    Error handling logic becomes scattered across the project.
+    
+    Problem 5: Poor Client Experience
+    
+    Frontend developers cannot reliably identify errors.
+    
+    ---
+    
+    ## SOLUTION PROVIDED BY EXCEPTION LAYER
+    
+    The Exception Layer solves these problems by:
+    
+    • Centralizing error handling
+    • Providing meaningful error messages
+    • Creating a standard error response format
+    • Eliminating repetitive try-catch blocks
+    • Improving maintainability
+    • Improving API quality
+    
+    Result:
+    
+    Instead of:
+    
+    500 Internal Server Error
+    
+    Client receives:
+    
+    {
+    "status":404,
+    "message":"Employee Not Found"
+    }
+    
+    ---
+    
+    ## EXCEPTION LAYER STRUCTURE
+    
+    Package Structure:
+    
+    exception
+    │
+    ├── ResourceNotFoundException.java
+    │
+    ├── ErrorResponse.java
+    │
+    └── GlobalExceptionHandler.java
+    
+    These three classes form the foundation of exception handling.
+    
+    ---
+    
+    ## CLASS 1 : ResourceNotFoundException
+    
+    Purpose:
+    
+    Represents a custom business exception.
+    
+    Used when a requested resource cannot be found.
+    
+    Examples:
+    
+    Employee Not Found
+    
+    User Not Found
+    
+    Product Not Found
+    
+    Order Not Found
+    
+    Definition:
+    
+    A custom exception created by developers for application-specific scenarios.
+    
+    Code:
+    
+    public class ResourceNotFoundException
+    extends RuntimeException {
+    
+    ```
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+    ```
+    
+    }
+    
+    Understanding:
+    
+    throw new ResourceNotFoundException(
+    "Employee Not Found");
+    
+    Meaning:
+    
+    Stop current execution and transfer control to the Exception Handler.
+    
+    ---
+    
+    ## CLASS 2 : ErrorResponse
+    
+    Purpose:
+    
+    Creates a standardized error response object.
+    
+    Instead of returning random error formats, every error follows the same structure.
+    
+    Example:
+    
+    {
+    "timestamp":"2026-01-01T10:00:00",
+    "status":404,
+    "error":"NOT_FOUND",
+    "message":"Employee Not Found",
+    "path":"/getEmployee/999"
+    }
+    
+    Benefits:
+    
+    • Consistent API Responses
+    • Easier Frontend Integration
+    • Easier Debugging
+    • Professional API Design
+    
+    Typical Fields:
+    
+    timestamp
+    
+    status
+    
+    error
+    
+    message
+    
+    path
+    
+    ---
+    
+    ## CLASS 3 : GlobalExceptionHandler
+    
+    Purpose:
+    
+    Acts as the central manager for handling exceptions across the entire application.
+    
+    Annotation:
+    
+    @RestControllerAdvice
+    
+    Meaning:
+    
+    Monitor all controllers and handle exceptions globally.
+    
+    Example:
+    
+    @RestControllerAdvice
+    public class GlobalExceptionHandler {
+    
+    }
+    
+    Think of it as:
+    
+    Application Error Manager
+    
+    ---
+    
+    ## @ExceptionHandler
+    
+    Purpose:
+    
+    Handles a specific exception type.
+    
+    Example:
+    
+    @ExceptionHandler(
+    ResourceNotFoundException.class)
+    
+    Meaning:
+    
+    Whenever ResourceNotFoundException occurs,
+    execute this method.
+    
+    Example Flow:
+    
+    ResourceNotFoundException
+    ↓
+    GlobalExceptionHandler
+    ↓
+    ErrorResponse
+    ↓
+    Client
+    
+    ---
+    
+    ## IMPLEMENTATION IN CURRENT PROJECT
+    
+    STEP 1
+    
+    Client Requests:
+    
+    GET /getEmployee/999
+    
+    STEP 2
+    
+    Controller receives request.
+    
+    EmployeeController
+    
+    ```
+          ↓
+    ```
+    
+    STEP 3
+    
+    Controller calls Service.
+    
+    employeeService.getEmployee(id)
+    
+    ```
+          ↓
+    ```
+    
+    STEP 4
+    
+    Service calls Repository.
+    
+    employeeRepository.getEmployee(id)
+    
+    ```
+          ↓
+    ```
+    
+    STEP 5
+    
+    Repository returns:
+    
+    null
+    
+    because employee does not exist.
+    
+    ```
+          ↓
+    ```
+    
+    STEP 6
+    
+    Service detects missing employee.
+    
+    if(employee == null){
+    throw new ResourceNotFoundException(
+    "Employee Not Found");
+    }
+    
+    ```
+          ↓
+    ```
+    
+    STEP 7
+    
+    Spring catches the exception.
+    
+    ```
+          ↓
+    ```
+    
+    STEP 8
+    
+    GlobalExceptionHandler executes.
+    
+    ```
+          ↓
+    ```
+    
+    STEP 9
+    
+    ErrorResponse object is created.
+    
+    ```
+          ↓
+    ```
+    
+    STEP 10
+    
+    Client receives:
+    
+    {
+    "status":404,
+    "message":"Employee Not Found"
+    }
+    
+    ---
+    
+    ## REQUEST FLOW WITHOUT EXCEPTION LAYER
+    
+    Client
+    ↓
+    Controller
+    ↓
+    Service
+    ↓
+    Repository
+    ↓
+    null
+    ↓
+    NullPointerException
+    ↓
+    500 Error
+    ↓
+    Client
+    
+    Problems:
+    
+    • Confusing
+    • Unprofessional
+    • Difficult to debug
+    
+    ---
+    
+    ## REQUEST FLOW WITH EXCEPTION LAYER
+    
+    Client
+    ↓
+    Controller
+    ↓
+    Service
+    ↓
+    Repository
+    ↓
+    null
+    ↓
+    ResourceNotFoundException
+    ↓
+    GlobalExceptionHandler
+    ↓
+    ErrorResponse
+    ↓
+    404 NOT FOUND
+    ↓
+    Client
+    
+    Benefits:
+    
+    • Clear
+    • Consistent
+    • Professional
+    • Easy to maintain
+    
+    ---
+    
+    ## IMPORTANT ANNOTATIONS
+    
+    @RestControllerAdvice
+    
+    Purpose:
+    
+    Global exception handling.
+    
+    @ExceptionHandler
+    
+    Purpose:
+    
+    Handles a specific exception.
+    
+    @ResponseStatus
+    
+    Purpose:
+    
+    Associates an HTTP status with an exception.
+    
+    ---
+    
+    ## HTTP STATUS CODES COMMONLY USED
+    
+    200 OK
+    
+    Request Successful
+    
+    201 CREATED
+    
+    Resource Created
+    
+    400 BAD REQUEST
+    
+    Invalid Input
+    
+    401 UNAUTHORIZED
+    
+    Authentication Required
+    
+    403 FORBIDDEN
+    
+    Access Denied
+    
+    404 NOT FOUND
+    
+    Resource Missing
+    
+    500 INTERNAL SERVER ERROR
+    
+    Unexpected Server Error
+    
+    ---
+    
+    ## REAL WORLD EXAMPLES
+    
+    Employee Not Found
+    
+    throw new ResourceNotFoundException(
+    "Employee Not Found");
+    
+    Product Not Found
+    
+    throw new ResourceNotFoundException(
+    "Product Not Found");
+    
+    Order Not Found
+    
+    throw new ResourceNotFoundException(
+    "Order Not Found");
+    
+    User Not Found
+    
+    throw new ResourceNotFoundException(
+    "User Not Found");
+    
+    ---
+    
+    ## INTERVIEW QUESTIONS
+    
+    What is Exception Handling?
+    
+    Exception Handling is the process of managing application errors and returning meaningful responses instead of crashing the application.
+    
+    Why do we use GlobalExceptionHandler?
+    
+    To centralize exception handling and avoid repetitive try-catch blocks.
+    
+    What is @RestControllerAdvice?
+    
+    A Spring annotation used for global exception handling across all controllers.
+    
+    What is @ExceptionHandler?
+    
+    A method-level annotation used to handle a specific exception.
+    
+    Why create custom exceptions?
+    
+    To represent business-specific errors clearly.
+    
+    What is ErrorResponse?
+    
+    A DTO used to return a standardized error response to clients.
+    
+    ---
+    
+    ## REVISION SHEET
+    
+    Exception Layer
+    ↓
+    Handles Application Errors
+    
+    Main Goal
+    ↓
+    Convert Exceptions into Proper API Responses
+    
+    Classes Used
+    
+    ResourceNotFoundException
+    ↓
+    Custom Exception
+    
+    ErrorResponse
+    ↓
+    Standard Error DTO
+    
+    GlobalExceptionHandler
+    ↓
+    Central Error Manager
+    
+    Main Annotations
+    
+    @RestControllerAdvice
+    
+    @ExceptionHandler
+    
+    @ResponseStatus
+    
+    Flow
+    
+    Client
+    ↓
+    Controller
+    ↓
+    Service
+    ↓
+    Repository
+    ↓
+    Exception
+    ↓
+    GlobalExceptionHandler
+    ↓
+    ErrorResponse
+    ↓
+    Client
+    
+    Benefits
+    
+    • Centralized Error Handling
+    • Cleaner Controllers
+    • Standard Responses
+    • Better Debugging
+    • Better Client Experience
+    • Professional API Design

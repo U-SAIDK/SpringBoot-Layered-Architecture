@@ -1,0 +1,842 @@
+        # SPRING BOOT PROJECT NOTES
+
+        # PROJECT OVERVIEW
+
+        This project demonstrates the standard layered architecture used in Spring Boot applications.
+
+        The project follows the separation of concerns principle where each layer has a specific responsibility.
+
+        Architecture:
+
+        Client
+        ↓
+        Controller
+        ↓
+        Service
+        ↓
+        Repository
+        ↓
+        Database
+
+        Response Flow:
+
+        Database
+        ↓
+        Repository
+        ↓
+        Service
+        ↓
+        DTO
+        ↓
+        Controller
+        ↓
+        JSON Response
+
+        ---
+
+        1. SPRING BOOT APPLICATION CLASS
+
+        ---
+
+        Class:
+        SpringBoot2Application.java
+
+        Annotation:
+        @SpringBootApplication
+
+        Definition:
+        The main class of a Spring Boot application. It serves as the application's entry point and bootstraps the Spring Framework.
+
+        Code:
+
+        public static void main(String[] args) {
+        SpringApplication.run(SpringBoot2Application.class, args);
+        }
+
+        What Happens Internally?
+
+        1. JVM starts execution from main() method.
+        2. Spring Boot starts.
+        3. Spring IoC Container is created.
+        4. Component Scanning begins.
+        5. Spring finds:
+
+           * @Controller
+           * @RestController
+           * @Service
+           * @Repository
+           * @Component
+        6. Spring creates objects (Beans).
+        7. Dependencies are injected.
+        8. Embedded Tomcat Server starts.
+        9. Application becomes ready to accept requests.
+
+        Important Points:
+
+        • Entry point of application
+        • Creates Application Context
+        • Starts Embedded Server
+        • Creates and manages Beans
+        • Enables Auto Configuration
+
+        ---
+
+        2. IOC CONTAINER
+
+        ---
+
+        Definition:
+
+        IOC = Inversion Of Control
+
+        The Spring IoC Container is responsible for creating, managing, and destroying objects (Beans).
+
+        Instead of creating objects manually using:
+
+        EmployeeService service = new EmployeeService();
+
+        Spring creates and manages the object.
+
+        Benefits:
+
+        • Loose Coupling
+        • Better Maintainability
+        • Dependency Management
+        • Easier Testing
+
+        Example:
+
+        @Autowired
+        private EmployeeService employeeService;
+
+        Spring automatically injects the object.
+
+        ---
+
+        3. BEAN
+
+        ---
+
+        Definition:
+
+        A Bean is an object created and managed by Spring Container.
+
+        Examples:
+
+        EmployeeController
+        EmployeeService
+        EmployeeRepository
+
+        These become beans because they are annotated with:
+
+        @RestController
+        @Service
+        @Repository
+
+        Important Points:
+
+        • Created by Spring
+        • Managed by Spring
+        • Stored inside IoC Container
+        • Can be injected anywhere
+
+        ---
+
+        4. DEPENDENCY INJECTION (DI)
+
+        ---
+
+        Definition:
+
+        Dependency Injection is a design pattern where Spring automatically provides required objects.
+
+        Without DI:
+
+        EmployeeService service =
+        new EmployeeService();
+
+        With DI:
+
+        @Autowired
+        private EmployeeService employeeService;
+
+        Benefits:
+
+        • Loose Coupling
+        • Easier Maintenance
+        • Better Testing
+        • Cleaner Code
+
+        Flow:
+
+        Controller
+        ↓
+        Service
+        ↓
+        Repository
+
+        ---
+
+        5. CONTROLLER LAYER
+
+        ---
+
+        Package:
+
+        controller
+
+        Class:
+
+        EmployeeController
+
+        Annotation:
+
+        @RestController
+
+        Definition:
+
+        Controller acts as the entry point of HTTP requests.
+
+        Responsibilities:
+
+        • Accept Requests
+        • Extract Parameters
+        • Call Service Layer
+        • Return Responses
+
+        Example:
+
+        @GetMapping("/getEmployee/{id}")
+
+        Request:
+
+        GET /getEmployee/101
+
+        Controller receives request and delegates processing to Service Layer.
+
+        Important Points:
+
+        • Does not contain database logic
+        • Does not contain business logic
+        • Acts as request handler
+        • Returns HTTP responses
+
+        ---
+
+        6. SERVICE LAYER
+
+        ---
+
+        Package:
+
+        service
+
+        Class:
+
+        EmployeeService
+
+        Annotation:
+
+        @Service
+
+        Definition:
+
+        Service Layer contains business logic and acts as a bridge between Controller and Repository.
+
+        Responsibilities:
+
+        • Business Logic
+        • Validations
+        • Calculations
+        • Data Transformation
+        • Entity to DTO Conversion
+
+        Example:
+
+        Employee employee =
+        employeeRepository.getEmployee(id);
+
+        EmployeeDTO dto =
+        new EmployeeDTO(...);
+
+        Important Points:
+
+        • Middle Layer
+        • Handles Business Rules
+        • Converts Entity ↔ DTO
+        • Communicates with Repository
+
+        ---
+
+        7. REPOSITORY LAYER
+
+        ---
+
+        Package:
+
+        repository
+
+        Class:
+
+        EmployeeRepository
+
+        Annotation:
+
+        @Repository
+
+        Definition:
+
+        Repository Layer interacts with the database.
+
+        Responsibilities:
+
+        • Fetch Data
+        • Save Data
+        • Update Data
+        • Delete Data
+
+        Current Project:
+
+        Repository returns mock data:
+
+        return new Employee(
+        id,
+        "Usaid",
+        "IT",
+        21
+        );
+
+        Future:
+
+        Spring Data JPA:
+
+        employeeRepository.findById(id);
+
+        Important Points:
+
+        • Database Layer
+        • Returns Entities
+        • Contains Queries
+        • Handles CRUD Operations
+
+        ---
+
+        8. ENTITY
+
+        ---
+
+        Package:
+
+        entity
+
+        Class:
+
+        Employee
+
+        Annotation:
+
+        @Entity
+
+        Definition:
+
+        An Entity is a Java class mapped to a database table.
+
+        Each Entity Object represents one row in the database.
+
+        Example:
+
+        @Entity
+        public class Employee
+
+        Table Representation:
+
+        +----+--------+------+-----+
+        | id | name   | dept | age |
+        +----+--------+------+-----+
+        | 1  | Usaid  | IT   | 21  |
+        +----+--------+------+-----+
+
+        Important Annotations:
+
+        @Entity
+        Marks class as database table.
+
+        @Id
+        Marks primary key.
+
+        Important Points:
+
+        • Database Model
+        • Managed by JPA/Hibernate
+        • Used by Repository
+        • Represents Table Data
+
+        JPA Requirement:
+
+        Every Entity should contain a No-Args Constructor.
+
+        Example:
+
+        public Employee() {
+        }
+
+        ---
+
+        9. DTO (DATA TRANSFER OBJECT)
+
+        ---
+
+        Package:
+
+        dto
+
+        Class:
+
+        EmployeeDTO
+
+        Definition:
+
+        DTO is used for transferring data between layers and sending data to clients.
+
+        Purpose:
+
+        Separate Database Model from API Model.
+
+        Why DTO?
+
+        Suppose Entity contains:
+
+        id
+        name
+        dept
+        age
+        salary
+        password
+
+        Client should not receive:
+
+        salary
+        password
+
+        DTO controls what gets exposed.
+
+        Example:
+
+        public class EmployeeDTO {
+        private Integer id;
+        private String name;
+        private String dept;
+        private Integer age;
+        }
+
+        Important Points:
+
+        • API Model
+        • Not a Database Table
+        • Improves Security
+        • Improves Flexibility
+        • Used for Requests and Responses
+
+        ---
+
+        10. ENTITY VS DTO
+
+        ---
+
+        ENTITY
+
+        Purpose:
+        Database Representation
+
+        Used By:
+        Repository
+
+        Contains:
+        Complete Database Fields
+
+        Annotation:
+        @Entity
+
+        Example:
+        Employee
+
+        DTO
+
+        Purpose:
+        Data Transfer
+
+        Used By:
+        Controller/Service
+
+        Contains:
+        Required API Fields
+
+        Annotation:
+        None
+
+        Example:
+        EmployeeDTO
+
+        Flow:
+
+        Database
+        ↓
+        Entity
+        ↓
+        Service
+        ↓
+        DTO
+        ↓
+        Client
+
+        ---
+
+        11. RESPONSEENTITY
+
+        ---
+
+        Definition:
+
+        ResponseEntity represents a complete HTTP Response.
+
+        Contains:
+
+        1. Response Body
+        2. Status Code
+        3. Headers
+
+        Example:
+
+        return ResponseEntity.ok(employeeDTO);
+
+        Equivalent:
+
+        HTTP Status:
+        200 OK
+
+        Body:
+        {
+        "id":1,
+        "name":"Usaid"
+        }
+
+        Common Examples:
+
+        ResponseEntity.ok(data)
+
+        ResponseEntity.notFound().build()
+
+        ResponseEntity.badRequest().build()
+
+        ---
+
+        12. PATHVARIABLE
+
+        ---
+
+        Definition:
+
+        Used to extract values from URL.
+
+        Example:
+
+        @GetMapping("/getEmployee/{id}")
+
+        public ResponseEntity<EmployeeDTO>
+        getEmployee(@PathVariable Integer id)
+
+        Request:
+
+        /getEmployee/101
+
+        Result:
+
+        id = 101
+
+        Important Points:
+
+        • Extracts URL Values
+        • Automatically converts datatype
+        • Commonly used for IDs
+
+        ---
+
+        13. REQUEST LIFECYCLE (MOST IMPORTANT)
+
+        ---
+
+        Request:
+
+        GET /getEmployee/101
+
+        STEP 1
+
+        Client sends request.
+
+        ```
+            Client
+               │
+               ▼
+        ```
+
+        STEP 2
+
+        Controller receives request.
+
+        EmployeeController
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 3
+
+        Controller calls Service.
+
+        employeeService.getEmployee(id)
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 4
+
+        Service calls Repository.
+
+        employeeRepository.getEmployee(id)
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 5
+
+        Repository fetches data.
+
+        Employee Entity Returned
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 6
+
+        Service converts Entity to DTO.
+
+        Employee → EmployeeDTO
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 7
+
+        DTO returned to Controller.
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 8
+
+        Controller returns ResponseEntity.
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 9
+
+        Jackson converts DTO to JSON.
+
+        ```
+               │
+               ▼
+        ```
+
+        STEP 10
+
+        JSON returned to Client.
+
+        Response:
+
+        {
+        "id":101,
+        "name":"Usaid",
+        "dept":"IT",
+        "age":21
+        }
+
+        ---
+
+        14. JSON CONVERSION
+
+        ---
+
+        Definition:
+
+        Spring Boot uses Jackson Library.
+
+        Purpose:
+
+        Convert Java Objects into JSON.
+
+        Example:
+
+        EmployeeDTO
+
+        ↓
+
+        {
+        "id":1,
+        "name":"Usaid",
+        "dept":"IT",
+        "age":21
+        }
+
+        This process is called Serialization.
+
+        ---
+
+        15. PROJECT FLOW SUMMARY
+
+        ---
+
+        APPLICATION STARTUP
+
+        main()
+        ↓
+        SpringApplication.run()
+        ↓
+        IoC Container Created
+        ↓
+        Beans Created
+        ↓
+        Dependencies Injected
+        ↓
+        Tomcat Started
+
+        REQUEST FLOW
+
+        Client
+        ↓
+        Controller
+        ↓
+        Service
+        ↓
+        Repository
+        ↓
+        Database
+
+        RESPONSE FLOW
+
+        Database
+        ↓
+        Repository
+        ↓
+        Entity
+        ↓
+        Service
+        ↓
+        DTO
+        ↓
+        Controller
+        ↓
+        JSON
+        ↓
+        Client
+
+        ---
+
+        16. INTERVIEW REVISION SHEET
+
+        ---
+
+        What is Spring Boot?
+
+        A framework that simplifies Spring development by providing auto configuration, embedded server, and production-ready features.
+
+        What is @SpringBootApplication?
+
+        Main annotation that enables:
+
+        * Auto Configuration
+        * Component Scan
+        * Spring Configuration
+
+        What is IoC?
+
+        Spring manages object creation instead of developers.
+
+        What is Bean?
+
+        Object managed by Spring Container.
+
+        What is Dependency Injection?
+
+        Spring automatically provides required objects.
+
+        What is Controller?
+
+        Handles HTTP Requests.
+
+        What is Service?
+
+        Contains Business Logic.
+
+        What is Repository?
+
+        Handles Database Operations.
+
+        What is Entity?
+
+        Represents Database Table.
+
+        What is DTO?
+
+        Represents Data transferred between layers.
+
+        Why DTO?
+
+        Security, Flexibility, Clean APIs.
+
+        What is ResponseEntity?
+
+        Complete HTTP Response.
+
+        What is @PathVariable?
+
+        Extracts values from URL.
+
+        Most Important Flow?
+
+        Client
+        ↓
+        Controller
+        ↓
+        Service
+        ↓
+        Repository
+        ↓
+        Database
+
+        Database
+        ↓
+        Repository
+        ↓
+        Service
+        ↓
+        DTO
+        ↓
+        Controller
+        ↓
+        JSON
+        ↓
+        Client

@@ -1,0 +1,587 @@
+        # SPRING BOOT ACTUATOR NOTES
+
+        # OVERVIEW
+
+        Spring Boot Actuator is a production-ready monitoring and management module provided by Spring Boot.
+
+        It helps developers and DevOps engineers monitor, inspect, and manage running Spring Boot applications.
+
+        Actuator provides endpoints that expose information about:
+
+        • Application Health
+        • Application Metrics
+        • Spring Beans
+        • Configuration Properties
+        • Environment Variables
+        • Request Mappings
+        • JVM Information
+        • Thread Information
+        • Memory Usage
+
+        In simple words:
+
+        Actuator allows us to see what is happening inside a running Spring Boot application.
+
+        ---
+
+        ## WHY ACTUATOR EXISTS
+
+        Imagine a production application running on a server.
+
+        Questions that may arise:
+
+        • Is the application running?
+        • Is the database connected?
+        • How much memory is being used?
+        • How many threads are active?
+        • What APIs are available?
+        • What Spring Beans exist?
+        • What configuration values are loaded?
+
+        Without Actuator:
+
+        You would have to manually write code for all these checks.
+
+        With Actuator:
+
+        Spring Boot provides all this information automatically.
+
+        ---
+
+        ## DEPENDENCY
+
+        Maven Dependency:
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        Since Spring Boot Parent manages versions, no version tag is required.
+
+        ---
+
+        ## CONFIGURATION
+
+        application.properties
+
+        spring.application.name=SpringBoot2
+
+        management.endpoints.web.exposure.include=*
+
+        management.endpoint.health.show-details=always
+
+        Property Explanation
+
+        1.
+
+        management.endpoints.web.exposure.include=*
+
+        Meaning:
+
+        Expose all actuator endpoints.
+
+        Without this property:
+
+        Only limited endpoints are available.
+
+        With this property:
+
+        All actuator endpoints become accessible.
+
+        Examples:
+
+        /actuator/health
+        /actuator/info
+        /actuator/beans
+        /actuator/env
+        /actuator/mappings
+        /actuator/metrics
+
+        2.
+
+        management.endpoint.health.show-details=always
+
+        Meaning:
+
+        Display complete health information.
+
+        Instead of:
+
+        {
+        "status":"UP"
+        }
+
+        You get:
+
+        {
+        "status":"UP",
+        "components":{
+        ...
+        }
+        }
+
+        ---
+
+        ## APPLICATION STARTUP FLOW
+
+        Application Starts
+        ↓
+        Spring Boot Initializes
+        ↓
+        Actuator Module Loads
+        ↓
+        Actuator Endpoints Registered
+        ↓
+        Application Ready
+        ↓
+        Monitoring Available
+
+        ---
+
+        ## MAIN ACTUATOR ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator
+
+        Purpose:
+
+        Displays all available actuator endpoints.
+
+        Example:
+
+        {
+        "_links":{
+        "self":{},
+        "health":{},
+        "beans":{},
+        "env":{},
+        "metrics":{},
+        ...
+        }
+        }
+
+        Think of it as an index page for actuator.
+
+        ---
+
+        ## HEALTH ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/health
+
+        Purpose:
+
+        Checks whether the application is healthy.
+
+        Example:
+
+        {
+        "status":"UP"
+        }
+
+        Possible Values:
+
+        UP
+        DOWN
+        OUT_OF_SERVICE
+        UNKNOWN
+
+        Most commonly used by:
+
+        • Kubernetes
+        • Docker
+        • Load Balancers
+        • Monitoring Tools
+
+        Example:
+
+        If database connection fails:
+
+        {
+        "status":"DOWN"
+        }
+
+        ---
+
+        ## INFO ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/info
+
+        Purpose:
+
+        Displays custom application information.
+
+        Configuration:
+
+        info.app.name=SpringBoot2
+        info.app.version=1.0
+        info.app.owner=Usaid
+
+        Output:
+
+        {
+        "app":{
+        "name":"SpringBoot2",
+        "version":"1.0",
+        "owner":"Usaid"
+        }
+        }
+
+        Useful for:
+
+        • Application metadata
+        • Version tracking
+
+        ---
+
+        ## BEANS ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/beans
+
+        Purpose:
+
+        Displays all Spring Beans created by the IoC Container.
+
+        Example Beans:
+
+        employeeController
+
+        employeeService
+
+        employeeRepository
+
+        dispatcherServlet
+
+        requestMappingHandler
+
+        etc.
+
+        Why Useful?
+
+        Helps understand:
+
+        • Which beans exist
+        • Whether bean creation succeeded
+        • Dependency Injection debugging
+
+        ---
+
+        ## ENV ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/env
+
+        Purpose:
+
+        Displays environment information.
+
+        Includes:
+
+        • application.properties
+        • JVM properties
+        • OS variables
+        • Environment variables
+
+        Useful for:
+
+        • Configuration debugging
+        • Troubleshooting
+
+        ---
+
+        ## MAPPINGS ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/mappings
+
+        Purpose:
+
+        Displays all REST API mappings.
+
+        Example:
+
+        GET /getEmployee/{id}
+
+        POST /employees
+
+        PUT /employees/{id}
+
+        DELETE /employees/{id}
+
+        Useful for:
+
+        • API discovery
+        • Route verification
+        • Debugging endpoint issues
+
+        ---
+
+        ## METRICS ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/metrics
+
+        Purpose:
+
+        Displays available application metrics.
+
+        Examples:
+
+        jvm.memory.used
+
+        jvm.memory.max
+
+        jvm.gc.pause
+
+        jvm.threads.live
+
+        process.cpu.usage
+
+        system.cpu.usage
+
+        http.server.requests
+
+        Metrics help us understand system performance.
+
+        ---
+
+        ## JVM MEMORY METRICS
+
+        URL:
+
+        http://localhost:8080/actuator/metrics/jvm.memory.used
+
+        Purpose:
+
+        Displays current JVM memory usage.
+
+        Useful for:
+
+        • Memory leak detection
+        • JVM tuning
+        • Capacity planning
+
+        Example:
+
+        {
+        "name":"jvm.memory.used",
+        "measurements":[
+        {
+        "value":12345678
+        }
+        ]
+        }
+
+        ---
+
+        ## THREAD METRICS
+
+        URL:
+
+        http://localhost:8080/actuator/metrics/jvm.threads.live
+
+        Purpose:
+
+        Displays active JVM thread count.
+
+        Useful for:
+
+        • Thread leak detection
+        • Performance analysis
+
+        ---
+
+        ## CONFIGURATION PROPERTIES
+
+        URL:
+
+        http://localhost:8080/actuator/configprops
+
+        Purpose:
+
+        Displays all configuration properties loaded by Spring.
+
+        Useful for:
+
+        • Configuration debugging
+        • Property verification
+
+        ---
+
+        ## THREADDUMP ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/threaddump
+
+        Purpose:
+
+        Displays all JVM threads.
+
+        Useful for:
+
+        • Deadlock detection
+        • Thread troubleshooting
+        • Performance debugging
+
+        ---
+
+        ## HEAPDUMP ENDPOINT
+
+        URL:
+
+        http://localhost:8080/actuator/heapdump
+
+        Purpose:
+
+        Generates a JVM heap dump.
+
+        Useful for:
+
+        • Memory leak investigation
+        • Production troubleshooting
+
+        Warning:
+
+        Heap dumps can be very large.
+
+        ---
+
+        ## HOW ACTUATOR WORKS INTERNALLY
+
+        Spring Boot Starts
+        ↓
+        Actuator Auto Configuration Loads
+        ↓
+        Health Indicators Registered
+        ↓
+        Metrics Collectors Registered
+        ↓
+        Endpoints Created
+        ↓
+        Endpoints Exposed Through HTTP
+        ↓
+        User Accesses /actuator/*
+
+        ---
+
+        ## REAL WORLD DEVOPS USAGE
+
+        Actuator is heavily used with:
+
+        • Docker
+        • Kubernetes
+        • Prometheus
+        • Grafana
+        • ELK Stack
+        • Datadog
+        • New Relic
+
+        Example:
+
+        Kubernetes Health Check
+
+        Pod Running
+        ↓
+        Calls
+
+        /actuator/health
+
+        ```
+          ↓
+        ```
+
+        UP ?
+
+        Yes → Keep Running
+
+        No → Restart Pod
+
+        ---
+
+        ## INTERVIEW QUESTIONS
+
+        Q. What is Spring Boot Actuator?
+
+        Actuator is a production-ready feature that provides monitoring and management capabilities for Spring Boot applications.
+
+        Q. Why is Actuator used?
+
+        To monitor application health, metrics, beans, environment properties, memory usage, and runtime information.
+
+        Q. Which endpoint is most commonly used?
+
+        /actuator/health
+
+        Q. Which endpoint shows all Spring Beans?
+
+        /actuator/beans
+
+        Q. Which endpoint shows all REST APIs?
+
+        /actuator/mappings
+
+        Q. Which endpoint shows JVM metrics?
+
+        /actuator/metrics
+
+        Q. Which endpoint shows environment variables?
+
+        /actuator/env
+
+        Q. Which endpoint shows application health?
+
+        /actuator/health
+
+        ---
+
+        ## ACTUATOR REVISION SHEET
+
+        Actuator
+        ↓
+        Monitoring + Management
+
+        Main Dependency
+        ↓
+        spring-boot-starter-actuator
+
+        Main URL
+        ↓
+        /actuator
+
+        Most Important Endpoints
+
+        /actuator
+        /actuator/health
+        /actuator/info
+        /actuator/beans
+        /actuator/env
+        /actuator/mappings
+        /actuator/metrics
+        /actuator/configprops
+
+        Production Usage
+
+        Monitor
+        Analyze
+        Debug
+        Observe
+        Manage
+
+        Most Asked Interview Endpoint
+
+        /actuator/health
+
+        Most Important DevOps Concept
+
+        Health Checks + Metrics Monitoring
