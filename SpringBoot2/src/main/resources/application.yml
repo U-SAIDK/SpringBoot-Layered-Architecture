@@ -1,0 +1,31 @@
+#  YAML stands for YAML Ain't Markup Language.
+#  It is a human-readable configuration format.
+#  Spring Boot supports both properties and YAML files.
+#  YAML is preferred for large applications.
+#  It provides hierarchical and cleaner configuration structure.
+#  Same values as application.properties can be represented more clearly.
+
+
+spring:
+  application:
+    name: SpringBoot2
+
+employee:
+  company-name: OpenAI Technologies
+  location: Mumbai
+  department: IT
+  email: support@openai.com
+  phone: 1234567890
+
+
+# Nested Configuration Example (application.properties Vs application.yml)
+#  Application.Properties Version:
+#  database.url=localhost
+#  database.username=admin
+#  database.password=admin123
+
+# YAML Version:
+# database:
+#  url: localhost
+#  username: admin
+#  password: admin123

@@ -3,24 +3,12 @@ package com.example.springboot2.repository;
 import com.example.springboot2.entity.Employee;
 import org.springframework.stereotype.Repository;
 
+
+/// @Repository:- Databae LAYER Responsible for:- Database access , Queries , Data retrieval
+// CRUD IS PERFORMED HERE
 @Repository
 public class EmployeeRepository {
 
-    /*
-     * REPOSITORY LAYER
-     *
-     * Responsible for:
-     * - Database access
-     * - Queries
-     * - Data retrieval
-     *
-     * In real projects:
-     *
-     * SELECT * FROM employee
-     * WHERE id = ?
-     *
-     * Here we are mocking data.
-     */
 
     public Employee getEmployee(Integer id) {
 

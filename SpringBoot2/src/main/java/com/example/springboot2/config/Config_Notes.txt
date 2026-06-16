@@ -1,0 +1,943 @@
+        SPRING BOOT CONFIG LAYER NOTES
+        ==============================
+
+        OVERVIEW
+        ========
+
+        The Config Layer is responsible for managing application-wide configuration, bean creation, environment settings, and framework customization.
+
+        It acts as the central setup layer of a Spring Boot application.
+
+        In simple words:
+
+        Config Layer tells Spring:
+
+        • What objects (Beans) should be created
+        • How those objects should be created
+        • Which configuration values should be loaded
+        • Which environment should be active
+        • How the application should behave
+
+        Without the Config Layer, configuration would be scattered throughout the project.
+
+
+        ------------------------------------------------------------------
+        WHY CONFIG LAYER IS NEEDED
+        ------------------------------------------------------------------
+
+        As applications grow, many configurations are required:
+
+        • Database Configuration
+        • Security Configuration
+        • JWT Configuration
+        • Mail Configuration
+        • Swagger Configuration
+        • CORS Configuration
+        • Redis Configuration
+        • Kafka Configuration
+        • Environment Variables
+        • Application Settings
+
+        Without a Config Layer:
+
+        Configuration becomes:
+
+        • Hardcoded
+        • Repeated
+        • Difficult to maintain
+        • Difficult to deploy
+
+        The Config Layer centralizes all application setup.
+
+
+        ------------------------------------------------------------------
+        PROBLEMS BEFORE CONFIG LAYER
+        ------------------------------------------------------------------
+
+        Problem 1
+
+        Hardcoded Values
+
+        Example:
+
+        String companyName = "OpenAI Technologies";
+
+        Changing values requires:
+
+        Code Change
+         ↓
+        Compile
+         ↓
+        Deploy
+
+        Not practical.
+
+
+        Problem 2
+
+        Scattered Configuration
+
+        Configuration logic appears in:
+
+        Controller
+
+        Service
+
+        Repository
+
+        making maintenance difficult.
+
+
+        Problem 3
+
+        Manual Object Creation
+
+        Example:
+
+        Employee employee = new Employee();
+
+        Spring cannot manage manually created objects.
+
+
+        Problem 4
+
+        Different Environments
+
+        Development
+
+        Testing
+
+        Production
+
+        all require different configurations.
+
+
+        Problem 5
+
+        Sensitive Data Exposure
+
+        Database Passwords
+
+        JWT Secrets
+
+        API Keys
+
+        should never be hardcoded.
+
+
+        ------------------------------------------------------------------
+        SOLUTION PROVIDED BY CONFIG LAYER
+        ------------------------------------------------------------------
+
+        The Config Layer provides:
+
+        • Centralized Configuration
+        • Bean Management
+        • Environment Management
+        • Property Management
+        • Secret Management
+        • Application Customization
+
+        Result:
+
+        Configuration becomes:
+
+        Clean
+
+        Reusable
+
+        Maintainable
+
+        Enterprise Ready
+
+
+        ------------------------------------------------------------------
+        CONFIG LAYER STRUCTURE
+        ------------------------------------------------------------------
+
+        Package Structure:
+
+        config
+        │
+        ├── AppConfig.java
+        │
+        ├── EmployeeConfigProperties.java
+        │
+        ├── SecurityConfig.java
+        │
+        ├── CorsConfig.java
+        │
+        └── SwaggerConfig.java
+
+        For our learning project:
+
+        config
+        │
+        ├── AppConfig.java
+        │
+        └── EmployeeConfigProperties.java
+
+
+        ------------------------------------------------------------------
+        CLASS 1 : AppConfig
+        ------------------------------------------------------------------
+
+        Purpose:
+
+        Acts as the main Spring Configuration Class.
+
+        Annotation:
+
+        @Configuration
+
+        Meaning:
+
+        This class contains application configuration and bean definitions.
+
+        Example:
+
+        @Configuration
+        public class AppConfig {
+
+        }
+
+        Spring scans and loads this class during startup.
+
+
+        ------------------------------------------------------------------
+        @Configuration
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Marks a class as a Spring Configuration Class.
+
+        Purpose:
+
+        Allows Spring to process configuration methods and register beans.
+
+        Example:
+
+        @Configuration
+        public class AppConfig {
+
+        }
+
+        Internal Working:
+
+        Application Starts
+                ↓
+        @Configuration Found
+                ↓
+        Configuration Loaded
+                ↓
+        Beans Registered
+                ↓
+        Application Ready
+
+
+        ------------------------------------------------------------------
+        @Bean
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Registers an object inside the Spring IoC Container.
+
+        Example:
+
+        @Bean
+        public RestTemplate restTemplate() {
+            return new RestTemplate();
+        }
+
+        Meaning:
+
+        Spring creates and manages the object.
+
+        Benefits:
+
+        • Dependency Injection Support
+        • Singleton Management
+        • Centralized Object Creation
+
+
+        ------------------------------------------------------------------
+        WHAT IS A BEAN
+        ------------------------------------------------------------------
+
+        Normal Java Object:
+
+        Employee employee = new Employee();
+
+        Spring Bean:
+
+        @Bean
+        public Employee employee() {
+            return new Employee();
+        }
+
+        Difference:
+
+        Normal Object
+            ↓
+        Created manually
+
+        Spring Bean
+            ↓
+        Created and managed by Spring
+
+
+        ------------------------------------------------------------------
+        @Value
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Injects a value from configuration files.
+
+        Example:
+
+        application.properties
+
+        employee.company-name=OpenAI Technologies
+
+        Service:
+
+        @Value("${employee.company-name}")
+        private String companyName;
+
+        Result:
+
+        companyName = OpenAI Technologies
+
+        automatically.
+
+
+        ------------------------------------------------------------------
+        PROBLEM WITH @Value
+        ------------------------------------------------------------------
+
+        For a few properties:
+
+        @Value works well.
+
+        Example:
+
+        @Value("${employee.company-name}")
+
+        @Value("${employee.location}")
+
+        But when properties increase:
+
+        @Value("${employee.email}")
+
+        @Value("${employee.phone}")
+
+        @Value("${employee.department}")
+
+        Code becomes cluttered.
+
+        Enterprise projects avoid excessive @Value usage.
+
+
+        ------------------------------------------------------------------
+        @ConfigurationProperties
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Maps a group of related properties into a single Java object.
+
+        Recommended Enterprise Solution.
+
+        Example:
+
+        application.yml
+
+        employee:
+          company-name: OpenAI Technologies
+          location: Mumbai
+          department: IT
+
+        Class:
+
+        @Component
+        @ConfigurationProperties(prefix = "employee")
+        public class EmployeeConfigProperties {
+
+            private String companyName;
+            private String location;
+            private String department;
+
+        }
+
+        Spring automatically maps values.
+
+
+        ------------------------------------------------------------------
+        WHY CONFIGURATIONPROPERTIES IS BETTER
+        ------------------------------------------------------------------
+
+        Instead of:
+
+        @Value("${employee.company-name}")
+
+        @Value("${employee.location}")
+
+        @Value("${employee.department}")
+
+        Use:
+
+        @Autowired
+        EmployeeConfigProperties config;
+
+        Access:
+
+        config.getCompanyName();
+
+        config.getLocation();
+
+        config.getDepartment();
+
+        Cleaner and easier to maintain.
+
+
+        ------------------------------------------------------------------
+        APPLICATION.PROPERTIES
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Default Spring Boot configuration file.
+
+        Stores:
+
+        • Application Settings
+        • Database Configuration
+        • Server Configuration
+        • Custom Properties
+
+        Example:
+
+        spring.application.name=SpringBoot2
+
+        employee.company-name=OpenAI Technologies
+
+        employee.location=Mumbai
+
+
+        ------------------------------------------------------------------
+        APPLICATION.YML
+        ------------------------------------------------------------------
+
+        Definition:
+
+        YAML-based configuration file used by Spring Boot.
+
+        Purpose:
+
+        Provides cleaner hierarchical configuration.
+
+        Example:
+
+        spring:
+          application:
+            name: SpringBoot2
+
+        employee:
+          company-name: OpenAI Technologies
+          location: Mumbai
+          department: IT
+
+        Advantages:
+
+        • More readable
+        • Better grouping
+        • Better nesting
+        • Industry standard
+
+
+        ------------------------------------------------------------------
+        PROPERTIES VS YAML
+        ------------------------------------------------------------------
+
+        Properties:
+
+        employee.company-name=OpenAI
+
+        employee.location=Mumbai
+
+        employee.department=IT
+
+        YAML:
+
+        employee:
+          company-name: OpenAI
+          location: Mumbai
+          department: IT
+
+        YAML is preferred in modern enterprise projects.
+
+
+        ------------------------------------------------------------------
+        SPRING PROFILES
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Allows Spring Boot to load different configurations for different environments.
+
+        Example Environments:
+
+        dev
+
+        test
+
+        prod
+
+        Purpose:
+
+        One application
+
+        Multiple configurations
+
+
+        ------------------------------------------------------------------
+        PROFILE FILE STRUCTURE
+        ------------------------------------------------------------------
+
+        resources
+
+        ├── application.yml
+        │
+        ├── application-dev.yml
+        │
+        ├── application-test.yml
+        │
+        └── application-prod.yml
+
+
+        ------------------------------------------------------------------
+        PROFILE ACTIVATION
+        ------------------------------------------------------------------
+
+        application.yml
+
+        spring:
+          profiles:
+            active: dev
+
+        Meaning:
+
+        Load:
+
+        application-dev.yml
+
+
+        ------------------------------------------------------------------
+        DEV PROFILE EXAMPLE
+        ------------------------------------------------------------------
+
+        application-dev.yml
+
+        employee:
+          company-name: OpenAI DEV
+          location: Mumbai
+
+
+        ------------------------------------------------------------------
+        TEST PROFILE EXAMPLE
+        ------------------------------------------------------------------
+
+        application-test.yml
+
+        employee:
+          company-name: OpenAI TEST
+          location: Pune
+
+
+        ------------------------------------------------------------------
+        PROD PROFILE EXAMPLE
+        ------------------------------------------------------------------
+
+        application-prod.yml
+
+        employee:
+          company-name: OpenAI PROD
+          location: Bangalore
+
+
+        ------------------------------------------------------------------
+        @Profile ANNOTATION
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Loads a bean only for a specific profile.
+
+        Example:
+
+        @Bean
+        @Profile("dev")
+        public String environment() {
+            return "Development";
+        }
+
+        Loads only when:
+
+        spring.profiles.active=dev
+
+
+        ------------------------------------------------------------------
+        ENVIRONMENT VARIABLES
+        ------------------------------------------------------------------
+
+        Definition:
+
+        Runtime configuration values stored outside the application.
+
+        Purpose:
+
+        Keep sensitive information outside source code.
+
+        Examples:
+
+        DB_USERNAME
+
+        DB_PASSWORD
+
+        JWT_SECRET
+
+        AWS_SECRET_KEY
+
+
+        ------------------------------------------------------------------
+        USING ENVIRONMENT VARIABLES
+        ------------------------------------------------------------------
+
+        application.yml
+
+        spring:
+          datasource:
+            username: ${DB_USERNAME}
+            password: ${DB_PASSWORD}
+
+        Spring automatically replaces:
+
+        ${DB_USERNAME}
+
+        with OS environment values.
+
+
+        ------------------------------------------------------------------
+        DEFAULT VALUES
+        ------------------------------------------------------------------
+
+        Example:
+
+        employee:
+          company-name: ${COMPANY_NAME:OpenAI Technologies}
+
+        Meaning:
+
+        If COMPANY_NAME exists:
+            Use it
+
+        Else:
+            Use OpenAI Technologies
+
+
+        ------------------------------------------------------------------
+        WHY ENVIRONMENT VARIABLES ARE IMPORTANT
+        ------------------------------------------------------------------
+
+        Security
+
+        No secrets in GitHub.
+
+        Flexibility
+
+        Different values per environment.
+
+        DevOps Friendly
+
+        Works with:
+
+        Docker
+
+        Kubernetes
+
+        AWS
+
+        Azure
+
+        GCP
+
+
+        ------------------------------------------------------------------
+        CONFIGURATION HIERARCHY
+        ------------------------------------------------------------------
+
+        Lowest Priority
+
+        application.yml
+
+                ↓
+
+        Profile Files
+
+        application-dev.yml
+
+        application-prod.yml
+
+                ↓
+
+        Environment Variables
+
+                ↓
+
+        Command Line Arguments
+
+        Highest Priority
+
+
+        Meaning:
+
+        Higher priority values override lower priority values.
+
+
+        ------------------------------------------------------------------
+        REAL WORLD CONFIG FLOW
+        ------------------------------------------------------------------
+
+        application.yml
+                ↓
+
+        Profile Selected
+                ↓
+
+        Profile Configuration Loaded
+                ↓
+
+        Environment Variables Applied
+                ↓
+
+        @ConfigurationProperties Mapping
+                ↓
+
+        Bean Creation
+                ↓
+
+        Dependency Injection
+                ↓
+
+        Application Ready
+
+
+        ------------------------------------------------------------------
+        HOW CONFIG LAYER FITS IN OUR PROJECT
+        ------------------------------------------------------------------
+
+        resources
+        │
+        ├── application.yml
+        │
+        └── application-dev.yml
+
+                ↓
+
+        config
+        │
+        ├── AppConfig
+        │
+        └── EmployeeConfigProperties
+
+                ↓
+
+        service
+        │
+        └── EmployeeService
+
+                ↓
+
+        controller
+        │
+        └── EmployeeController
+
+                ↓
+
+        Client
+
+
+        ------------------------------------------------------------------
+        REAL ENTERPRISE CONFIG CLASSES
+        ------------------------------------------------------------------
+
+        AppConfig
+            ↓
+        General Bean Configuration
+
+        SecurityConfig
+            ↓
+        Spring Security Setup
+
+        CorsConfig
+            ↓
+        Cross-Origin Configuration
+
+        SwaggerConfig
+            ↓
+        API Documentation
+
+        DatabaseConfig
+            ↓
+        Database Setup
+
+        RedisConfig
+            ↓
+        Redis Cache Configuration
+
+        KafkaConfig
+            ↓
+        Kafka Messaging Configuration
+
+        JwtConfig
+            ↓
+        JWT Authentication Configuration
+
+
+        ------------------------------------------------------------------
+        INTERVIEW QUESTIONS
+        ------------------------------------------------------------------
+
+        What is Config Layer?
+
+        The Config Layer contains application-wide configuration, bean definitions, and framework customization.
+
+
+        What is @Configuration?
+
+        Marks a class as a Spring Configuration Class.
+
+
+        What is @Bean?
+
+        Registers an object as a Spring Bean.
+
+
+        What is @Value?
+
+        Injects a property value into a field.
+
+
+        What is @ConfigurationProperties?
+
+        Maps a group of properties into a Java object.
+
+
+        What is application.yml?
+
+        A YAML-based configuration file used by Spring Boot.
+
+
+        Why use Profiles?
+
+        To manage different configurations for dev, test, and production environments.
+
+
+        What are Environment Variables?
+
+        Runtime configuration values stored outside the application.
+
+
+        Why should secrets not be stored in application.yml?
+
+        Because configuration files may be committed to source control and expose sensitive information.
+
+
+        ------------------------------------------------------------------
+        REVISION SHEET
+        ------------------------------------------------------------------
+
+        CONFIG LAYER
+              ↓
+        Application Setup Layer
+
+        Main Responsibilities
+
+        • Bean Creation
+        • Configuration Management
+        • Profile Management
+        • Environment Management
+        • Framework Customization
+
+        Important Annotations
+
+        @Configuration
+
+        @Bean
+
+        @Value
+
+        @ConfigurationProperties
+
+        @Profile
+
+        Important Files
+
+        application.properties
+
+        application.yml
+
+        application-dev.yml
+
+        application-test.yml
+
+        application-prod.yml
+
+        Important Concepts
+
+        Beans
+
+        Profiles
+
+        Environment Variables
+
+        Property Mapping
+
+        Configuration Management
+
+        Flow
+
+        Configuration Files
+                ↓
+
+        Config Layer
+                ↓
+
+        Beans Created
+                ↓
+
+        IoC Container
+                ↓
+
+        Dependency Injection
+                ↓
+
+        Service Layer
+                ↓
+
+        Controller Layer
+                ↓
+
+        Client
+
+        Benefits
+
+        • Centralized Configuration
+        • Cleaner Code
+        • Easier Maintenance
+        • Environment Separation
+        • Better Security
+        • Enterprise Scalability
