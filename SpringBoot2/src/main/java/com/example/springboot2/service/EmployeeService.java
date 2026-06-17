@@ -6,6 +6,7 @@ import com.example.springboot2.entity.Employee;
 import com.example.springboot2.exception.ResourceNotFoundException;
 import com.example.springboot2.repository.EmployeeRepository;
 import com.example.springboot2.util.DateUtil;
+import com.example.springboot2.util.EmployeeMapperUtil;
 import com.example.springboot2.util.EmployeeUtil;
 import org.springframework.stereotype.Service;
 
@@ -99,14 +100,9 @@ public class EmployeeService {
                 + config.getLocation());
 
         /*
-         * Entity → DTO Conversion
+         * Entity → DTO Conversion done in the util class
          */
-        return new EmployeeDTO(
-                employee.getId(),
-                employee.getName(),
-                employee.getDept(),
-                employee.getAge()
-        );
+        return EmployeeMapperUtil.toDTO(employee);
     }
 
     /*
