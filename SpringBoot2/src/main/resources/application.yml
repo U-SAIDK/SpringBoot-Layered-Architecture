@@ -10,13 +10,38 @@ spring:
   application:
     name: SpringBoot2
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/employee_db
+    username: postgres
+    password: U$@ID12345
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    show-sql: true
+
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        format_sql: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+  endpoint:
+    health:
+      show-details: always
+
 employee:
   company-name: OpenAI Technologies
   location: Mumbai
   department: IT
   email: support@openai.com
   phone: 1234567890
-
 
 # Nested Configuration Example (application.properties Vs application.yml)
 #  Application.Properties Version:

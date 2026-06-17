@@ -15,16 +15,12 @@ import com.example.springboot2.entity.Employee;
  *
  */
 
-public class EmployeeMapperUtil {
+public class EmployeeMapper {
 
     /*
      * Entity → DTO
      */
     public static EmployeeDTO toDTO(Employee employee) {
-
-        if (employee == null) {
-            return null;
-        }
 
         return new EmployeeDTO(
                 employee.getId(),

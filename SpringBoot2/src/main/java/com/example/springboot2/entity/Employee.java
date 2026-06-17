@@ -2,8 +2,10 @@ package com.example.springboot2.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
+@Table(name = "employees")
 public class Employee {
 
     /*

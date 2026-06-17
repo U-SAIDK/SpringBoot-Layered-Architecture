@@ -1,0 +1,722 @@
+        # UTIL LAYER NOTES
+
+        # OVERVIEW
+
+        The Utility (Util) Layer contains reusable helper classes and common methods that can be used across multiple layers of the application.
+
+        It acts as a toolbox for the entire project.
+
+        In simple words:
+
+        Util Layer = Common Helper Functions
+
+        These functions can be called from:
+
+        • Controller Layer
+        • Service Layer
+        • Repository Layer
+        • Exception Layer
+        • Config Layer
+
+        without duplicating code.
+
+        ---
+
+        ## WHAT IS A UTILITY CLASS?
+
+        Definition:
+
+        A Utility Class is a class that contains reusable helper methods that perform common tasks and do not contain business logic.
+
+        Examples:
+
+        • Date Formatting
+        • String Formatting
+        • ID Generation
+        • Email Validation
+        • DTO ↔ Entity Conversion
+        • File Operations
+        • Encryption
+        • JWT Handling
+
+        Purpose:
+
+        Write Once
+        ↓
+        Use Everywhere
+
+        ---
+
+        ## WHY UTIL LAYER IS NEEDED
+
+        As projects grow, many common operations are repeated.
+
+        Example:
+
+        EmployeeService:
+
+        UUID.randomUUID()
+
+        UserService:
+
+        UUID.randomUUID()
+
+        ProductService:
+
+        UUID.randomUUID()
+
+        Same code repeated in multiple places.
+
+        Problems:
+
+        • Code Duplication
+        • Difficult Maintenance
+        • Reduced Readability
+        • Higher Chance of Bugs
+
+        Solution:
+
+        Move common logic to Utility Classes.
+
+        ---
+
+        ## PROBLEMS BEFORE UTIL LAYER
+
+        Problem 1
+
+        Duplicate Code
+
+        Same helper logic repeated in multiple services.
+
+        Example:
+
+        Date Formatting code copied everywhere.
+
+        Problem 2
+
+        Difficult Maintenance
+
+        If formatting changes:
+
+        Need to update many files.
+
+        Problem 3
+
+        Large Service Classes
+
+        Service classes become cluttered with helper logic.
+
+        Problem 4
+
+        Poor Reusability
+
+        Common logic cannot be shared easily.
+
+        ---
+
+        ## SOLUTION PROVIDED BY UTIL LAYER
+
+        The Util Layer provides:
+
+        • Reusable Logic
+        • Cleaner Service Layer
+        • Centralized Helper Methods
+        • Better Code Organization
+        • Easier Maintenance
+
+        Result:
+
+        Less Duplicate Code
+
+        More Professional Architecture
+
+        ---
+
+        ## POSITION OF UTIL LAYER IN PROJECT
+
+        controller
+        ↓
+
+        service
+        ↓
+
+        repository
+
+        util
+        ↑
+        Can Be Used By Any Layer
+
+        Important:
+
+        Util Layer is NOT a business layer.
+
+        It does not sit between layers.
+
+        It acts as a shared helper package.
+
+        ---
+
+        ## CURRENT PROJECT STRUCTURE
+
+        SpringBoot2
+
+        ├── controller
+        ├── service
+        ├── repository
+        ├── entity
+        ├── dto
+        ├── exception
+        ├── config
+        │
+        └── util
+        ├── EmployeeUtil
+        ├── DateUtil
+        ├── ValidationUtil
+        └── EmployeeMapperUtil
+
+        ---
+
+        UTILITY CLASS 1
+        EmployeeUtil
+        ------------
+
+        Purpose:
+
+        Generate Employee Related Utility Values.
+
+        Current Example:
+
+        Generate Unique Employee Code.
+
+        Code:
+
+        public class EmployeeUtil {
+
+        ```
+        public static String generateEmployeeCode() {
+
+            return "EMP-" +
+                    UUID.randomUUID()
+                            .toString()
+                            .substring(0,8)
+                            .toUpperCase();
+        }
+        ```
+
+        }
+
+        Usage:
+
+        String employeeCode =
+        EmployeeUtil.generateEmployeeCode();
+
+        Example Output:
+
+        EMP-A7B9D2F1
+
+        EMP-82AB76CD
+
+        EMP-F1C8E92A
+
+        ---
+
+        ## WHY EmployeeUtil IS USEFUL
+
+        Without Util:
+
+        Every Service writes:
+
+        UUID.randomUUID()
+
+        With Util:
+
+        EmployeeUtil.generateEmployeeCode()
+
+        Benefits:
+
+        • Cleaner Code
+        • Reusable Logic
+        • Centralized Generation Logic
+
+        ---
+
+        UTILITY CLASS 2
+        DateUtil
+        --------
+
+        Purpose:
+
+        Handle Date and Time Operations.
+
+        Example:
+
+        public class DateUtil {
+
+        ```
+        public static String getCurrentDateTime() {
+
+            return LocalDateTime.now()
+                    .format(
+                        DateTimeFormatter
+                            .ofPattern(
+                                "dd-MM-yyyy HH:mm:ss"
+                            )
+                    );
+        }
+        ```
+
+        }
+
+        Usage:
+
+        String time =
+        DateUtil.getCurrentDateTime();
+
+        Example Output:
+
+        15-06-2026 10:30:15
+
+        ---
+
+        ## WHY DateUtil IS USEFUL
+
+        Without Util:
+
+        Date formatting logic repeated everywhere.
+
+        With Util:
+
+        DateUtil.getCurrentDateTime()
+
+        Single source of truth.
+
+        ---
+
+        UTILITY CLASS 3
+        ValidationUtil
+        --------------
+
+        Purpose:
+
+        Perform Common Validation Operations.
+
+        Example:
+
+        public class ValidationUtil {
+
+        ```
+        public static boolean isValidEmail(
+                String email) {
+
+            return email.contains("@");
+        }
+        ```
+
+        }
+
+        Usage:
+
+        if(!ValidationUtil.isValidEmail(email)) {
+
+        ```
+        throw new IllegalArgumentException(
+                "Invalid Email"
+        );
+        ```
+
+        }
+
+        Purpose:
+
+        Centralized validation logic.
+
+        ---
+
+        ## WHY ValidationUtil IS USEFUL
+
+        Validation rules are used everywhere.
+
+        Examples:
+
+        • Email Validation
+        • Mobile Validation
+        • Password Validation
+        • Name Validation
+
+        Util Layer prevents duplication.
+
+        ---
+
+        UTILITY CLASS 4
+        EmployeeMapperUtil
+        ------------------
+
+        Purpose:
+
+        Convert:
+
+        Entity ↔ DTO
+
+        Most important utility in our project.
+
+        ---
+
+        ## WHY DTO MAPPING IS REQUIRED
+
+        Client
+        ↓
+        DTO
+
+        Database
+        ↓
+        Entity
+
+        We should not expose Entity directly.
+
+        Therefore:
+
+        Entity → DTO
+
+        DTO → Entity
+
+        ---
+
+        ## EMPLOYEE MAPPER IMPLEMENTATION
+
+        public class EmployeeMapperUtil {
+
+        ```
+        public static EmployeeDTO toDTO(
+                Employee employee) {
+
+            return new EmployeeDTO(
+                    employee.getId(),
+                    employee.getName(),
+                    employee.getDept(),
+                    employee.getAge()
+            );
+        }
+
+        public static Employee toEntity(
+                EmployeeDTO dto) {
+
+            return new Employee(
+                    dto.getId(),
+                    dto.getName(),
+                    dto.getDept(),
+                    dto.getAge()
+            );
+        }
+        ```
+
+        }
+
+        ---
+
+        ## ENTITY TO DTO FLOW
+
+        Database
+        ↓
+
+        Employee Entity
+        ↓
+
+        EmployeeMapperUtil
+        ↓
+
+        EmployeeDTO
+        ↓
+
+        Controller
+        ↓
+
+        Client
+
+        ---
+
+        ## DTO TO ENTITY FLOW
+
+        Client
+        ↓
+
+        EmployeeDTO
+        ↓
+
+        EmployeeMapperUtil
+        ↓
+
+        Employee Entity
+        ↓
+
+        Repository
+        ↓
+
+        Database
+
+        ---
+
+        ## WHY MAPPER UTIL IS IMPORTANT
+
+        Without Mapper:
+
+        Service contains:
+
+        return new EmployeeDTO(
+        employee.getId(),
+        employee.getName(),
+        employee.getDept(),
+        employee.getAge()
+        );
+
+        Repeated everywhere.
+
+        With Mapper:
+
+        return EmployeeMapperUtil.toDTO(employee);
+
+        Cleaner and maintainable.
+
+        ---
+
+        ## STATIC METHODS IN UTIL CLASSES
+
+        Most utility methods are static.
+
+        Example:
+
+        public static String generateEmployeeCode()
+
+        Why?
+
+        No object creation needed.
+
+        Call directly:
+
+        EmployeeUtil.generateEmployeeCode();
+
+        instead of:
+
+        new EmployeeUtil().generateEmployeeCode();
+
+        ---
+
+        ## UTIL VS SERVICE LAYER
+
+        UTIL LAYER
+
+        Purpose:
+
+        Reusable Helper Logic
+
+        Examples:
+
+        Date Formatting
+
+        String Formatting
+
+        Validation
+
+        ID Generation
+
+        Mapping
+
+        No business decisions.
+
+        SERVICE LAYER
+
+        Purpose:
+
+        Business Logic
+
+        Examples:
+
+        Create Employee
+
+        Promote Employee
+
+        Calculate Salary
+
+        Apply Discount
+
+        Contains business decisions.
+
+        ---
+
+        ## SERVICE LAYER USING UTIL LAYER
+
+        Controller
+        ↓
+
+        EmployeeService
+        ↓
+
+        EmployeeUtil
+        ↓
+
+        DateUtil
+        ↓
+
+        ValidationUtil
+        ↓
+
+        EmployeeMapperUtil
+        ↓
+
+        Repository
+
+        Example Flow:
+
+        Request
+        ↓
+
+        Service
+
+        Generate Employee Code
+        ↓
+
+        Generate Timestamp
+        ↓
+
+        Validate Data
+        ↓
+
+        Convert Entity → DTO
+        ↓
+
+        Return Response
+
+        ---
+
+        ## BENEFITS OF UTIL LAYER
+
+        1. Reusability
+
+        Write Once
+        Use Anywhere
+
+        2. Reduced Code Duplication
+
+        Common logic stored in one place.
+
+        3. Better Maintainability
+
+        Update once.
+        Changes reflected everywhere.
+
+        4. Cleaner Services
+
+        Service focuses on business logic.
+
+        5. Better Architecture
+
+        Separation of concerns.
+
+        ---
+
+        ## REAL ENTERPRISE UTIL CLASSES
+
+        util
+
+        ├── DateUtil
+        ├── StringUtil
+        ├── ValidationUtil
+        ├── JwtUtil
+        ├── FileUtil
+        ├── EncryptionUtil
+        ├── PasswordUtil
+        ├── EmployeeUtil
+        ├── ResponseUtil
+        ├── ApiUtil
+        ├── CommonUtil
+        ├── MappingUtil
+        └── SecurityUtil
+
+        ---
+
+        ## INTERVIEW QUESTIONS
+
+        What is Util Layer?
+
+        The Util Layer contains reusable helper classes and common utility methods used across multiple layers of an application.
+
+        Why use Util Layer?
+
+        To avoid duplicate code and centralize reusable logic.
+
+        Should business logic be placed in Util Layer?
+
+        No.
+
+        Business logic belongs to the Service Layer.
+
+        Why are utility methods usually static?
+
+        Because utility methods do not require object state and can be called directly using the class name.
+
+        What is Mapper Utility?
+
+        A utility class that converts Entity objects to DTO objects and vice versa.
+
+        Why use Mapper Utility?
+
+        To keep conversion logic separate from business logic.
+
+        ---
+
+        ## REVISION SHEET
+
+        UTIL LAYER
+        ↓
+        Reusable Helper Layer
+
+        Contains:
+
+        • DateUtil
+        • ValidationUtil
+        • EmployeeUtil
+        • EmployeeMapperUtil
+
+        Responsibilities:
+
+        • Formatting
+        • Validation
+        • Conversion
+        • ID Generation
+        • Common Helper Methods
+
+        Does NOT Contain:
+
+        • Business Logic
+        • Database Logic
+        • Controller Logic
+
+        Flow:
+
+        Controller
+        ↓
+
+        Service
+        ↓
+
+        Util
+        ↓
+
+        Repository
+
+        Benefits:
+
+        • Reusable
+        • Clean Code
+        • Maintainable
+        • Less Duplication
+        • Better Architecture
+
+        Important Rule:
+
+        Service Layer
+        ↓
+        Business Logic
+
+        Util Layer
+        ↓
+        Helper Logic

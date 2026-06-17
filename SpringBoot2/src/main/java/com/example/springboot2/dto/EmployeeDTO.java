@@ -9,7 +9,10 @@ package com.example.springboot2.dto;
 //  * Entity = Database Model  ; * DTO    = API Model
 
 
+import lombok.Builder;
+import lombok.Data;
 
+// @Data
 public class EmployeeDTO {
 
     private Integer id;
@@ -17,20 +20,19 @@ public class EmployeeDTO {
     private String dept;
     private Integer age;
 
+    // No-Args Constructor
     public EmployeeDTO() {
     }
 
-    public EmployeeDTO(Integer id,
-                       String name,
-                       String dept,
-                       Integer age) {
-
+    // All-Args Constructor
+    public EmployeeDTO(Integer id, String name, String dept, Integer age) {
         this.id = id;
         this.name = name;
         this.dept = dept;
         this.age = age;
     }
 
+    // Getters and Setters
     public Integer getId() {
         return id;
     }
@@ -63,3 +65,5 @@ public class EmployeeDTO {
         this.age = age;
     }
 }
+
+/// As can use @Data -> lombok Library Getters,Setters , Parametarized Constructors are Automatically Added
