@@ -32,33 +32,14 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-/*
- * public
- *      -> Access Modifier
- *      -> Accessible from any package.
- *
- * interface
- *      -> Java Interface.
- *      -> Contains repository contract.
- *
- * EmployeeRepository
- *      -> Repository Interface Name.
- *      -> Handles Employee database operations.
- *
- * extends
- *      -> Inherits functionality from JpaRepository.
- *
- * JpaRepository
- *      -> Spring Data JPA Interface.
- *      -> Provides built-in CRUD methods.
- *
- * Employee
- *      -> Entity Class managed by repository.
- *
- * Integer
- *      -> Primary Key (ID) data type of Employee entity.
- */
-
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+    /*
+     *  public -> Access Modifier ( Accessible from any package).
+     *  EmployeeRepository -> Repository Interface Name.Handles Employee database operations
+     *  extends-> Inherits Methods/functionality from JpaRepository.
+     *  JpaRepository -> Spring Data JPA Interface, Provides built-in CRUD methods.
+     *  Generic Parameters:- Employee -> Entity Class managed by repository.
+     *                      Integer -> Primary Key (ID) data type of Employee entity.
+     */
 
 }

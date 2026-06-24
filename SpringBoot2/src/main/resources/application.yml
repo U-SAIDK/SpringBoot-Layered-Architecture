@@ -13,11 +13,12 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/employee_db
     username: postgres
-    password: U$@ID12345
+    password: "U$@ID12345"
     driver-class-name: org.postgresql.Driver
 
   jpa:
     show-sql: true
+    defer-datasource-initialization: true
 
     hibernate:
       ddl-auto: update
@@ -25,6 +26,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  sql:
+    init:
+      mode: always
 
 management:
   endpoints:
@@ -42,6 +47,7 @@ employee:
   department: IT
   email: support@openai.com
   phone: 1234567890
+
 
 # Nested Configuration Example (application.properties Vs application.yml)
 #  Application.Properties Version:

@@ -2,6 +2,8 @@ package com.example.springboot2.controller;
 
 import com.example.springboot2.dto.EmployeeDTO;
 import com.example.springboot2.service.EmployeeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,22 +21,26 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
+   /// Adding Logger
+    private static final Logger logger = LoggerFactory.getLogger(EmployeeController.class);
+
+
     /// API Endpoint
     // Example Request:
     // GET http://localhost:8080/getEmployee/101
     @GetMapping("getEmployee/{id}")
     public ResponseEntity<EmployeeDTO> getEmployee(@PathVariable Integer id) {
     /// @PathVariable
-        // Extracts value from URL.
-        // URL:
-        // /getEmployee/101
-        // id = 101
+    // Extracts value from URL:- /getEmployee/101 -> id = 101
 
-        /// Service Layer Call
-        // Controller delegates business logic to Service.
-        EmployeeDTO employee = employeeService.getEmployee(id);
+    /// Logger
+        logger.info("getEmployee id:{}", id);
 
-        /// ResponseEntity<String> represents the complete HTTP Response.
+    /// Service Layer Call
+    // Controller delegates business logic to Service.
+    EmployeeDTO employee = employeeService.getEmployee(id);
+
+    /// ResponseEntity<String> represents the complete HTTP Response.
         // It contains:- Response Body, HTTP Status Code, Headers (optional)
         // Here: Body   -> employee ; Status -> 200 OK
         return ResponseEntity.ok(employee);

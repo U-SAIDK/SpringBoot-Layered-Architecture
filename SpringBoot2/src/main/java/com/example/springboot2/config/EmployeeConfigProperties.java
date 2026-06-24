@@ -1,6 +1,6 @@
 /// AppConfig -> earlier in Appconfig @Configuration and in service layer @Value was used
 /// But in Real Enterprise config :- instead if @Value we use @ConfigurationProperties
-
+///
 // 1 Application Starts
 // 2 application.properties or application.yml is loaded
 // 3 Spring scans for @ConfigurationProperties classes

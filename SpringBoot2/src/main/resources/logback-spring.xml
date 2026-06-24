@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- =========================
+         CONSOLE APPENDER
+    ========================== -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+
+    </appender>
+
+
+    <!-- =========================
+         FILE APPENDER (Rolling)
+    ========================== -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>logs/app.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+
+            <!-- Daily log files -->
+            <fileNamePattern>logs/app-%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- Keep logs for 30 days -->
+            <maxHistory>30</maxHistory>
+
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n
+            </pattern>
+        </encoder>
+
+    </appender>
+
+
+    <!-- =========================
+         ROOT LOGGER
+    ========================== -->
+
+    <!-- Change INFO → DEBUG or TRACE when needed -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+
+    <!-- =========================
+         PACKAGE LEVEL LOGGING
+    ========================== -->
+
+    <!-- Your service layer -->
+    <logger name="com.example.springboot2.service" level="DEBUG"/>
+
+    <!-- Controller logs -->
+    <logger name="com.example.springboot2.controller" level="INFO"/>
+
+</configuration>

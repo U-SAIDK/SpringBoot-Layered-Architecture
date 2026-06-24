@@ -8,7 +8,11 @@ import com.example.springboot2.repository.EmployeeRepository;
 import com.example.springboot2.util.DateUtil;
 import com.example.springboot2.util.EmployeeMapper;
 import com.example.springboot2.util.EmployeeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /*
  * =====================================================
@@ -36,6 +40,7 @@ import org.springframework.stereotype.Service;
  *
  */
 
+@Slf4j
 @Service
 public class EmployeeService {
 
@@ -59,11 +64,18 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
         this.config = config;
     }
+/// Logger class initialization
+    Logger logger = LoggerFactory.getLogger(EmployeeService.class);
 
 
 /// Fetch employee by id
 //   public -> access modifier , EmployeeDTO -> Return Type , getEmployee -> Method Type ,
     public EmployeeDTO getEmployee(Integer id) {
+        // TRACE
+        log.trace("Entering getEmployee() method");
+
+        // INFO
+        log.info("Fetching employee with ID: {}", id);
 
         /*
          * Repository Layer Call
@@ -74,52 +86,27 @@ public class EmployeeService {
          * Throw ResourceNotFoundException.
          */
 
-        Employee employee = employeeRepository
-                        .findById(id)
-                        .orElseThrow(
-                                () ->
-                                new ResourceNotFoundException(
-                                "Employee Not Found With ID : "
-                                                        + id
-                                        )
-                        );
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("Employee not found with ID: {}", id);
+                    return new ResourceNotFoundException("Employee Not Found With ID : " + id);
+                });
+
 
 
 /// Util Layer Usage :-
         // Generate employee tracking code.
-        String employeeCode =
-                EmployeeUtil.generateEmployeeCode();
+        String employeeCode = EmployeeUtil.generateEmployeeCode();
 
         // Generate current timestamp.
-        String requestTime =
-                DateUtil.getCurrentDateTime();
+        String requestTime = DateUtil.getCurrentDateTime();
+        // Demo(logs) utility Layer
+        System.out.println("Employee Code : " + employeeCode);
+        System.out.println("Company Name : " + config.getCompanyName());
+        System.out.println("Location : " + config.getLocation());
+        System.out.println("Request Time : " + requestTime);
 
-        /*
-         * Demo Logs
-         */
-        System.out.println(
-                "Employee Code : "
-                        + employeeCode
-        );
-
-        System.out.println(
-                "Request Time : "
-                        + requestTime
-        );
-
-        System.out.println(
-                "Company Name : "
-                        + config.getCompanyName()
-        );
-
-        System.out.println(
-                "Location : "
-                        + config.getLocation()
-        );
-
-        /*
-         * Entity → DTO Conversion
-         */
+// Entity -> DTO Conversion
         return EmployeeMapper.toDTO(employee);
     }
 
@@ -127,19 +114,16 @@ public class EmployeeService {
 /// Config layer usage
     public void displayApplicationConfig() {
 
-        System.out.println(
-                "Company : "
-                        + config.getCompanyName()
-        );
+        System.out.println("Company : " + config.getCompanyName());
 
-        System.out.println(
-                "Location : "
-                        + config.getLocation()
-        );
+        System.out.println("Location : " + config.getLocation());
 
-        System.out.println(
-                "Department : "
-                        + config.getDepartment()
-        );
+        System.out.println("Department : " + config.getDepartment());
     }
+
+
+
+
+
+
 }

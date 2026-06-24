@@ -1,0 +1,320 @@
+        =====================================================
+        SPRING BOOT LOGGING (SLF4J + LOGBACK)
+        =====================================================
+
+        =====================================================
+        1. WHAT IS LOGGING?
+        =====================================================
+
+        Logging is the process of recording application events
+        (runtime information) such as:
+
+        - Application flow
+        - Errors and exceptions
+        - API requests/responses
+        - Database operations
+        - Debugging information
+
+        Instead of using System.out.println(), logging provides:
+
+        ✔ Better performance
+        ✔ Different log levels
+        ✔ File + console output
+        ✔ Production monitoring
+        ✔ Filtering and formatting
+        ✔ Centralized control via configuration
+
+        -----------------------------------------------------
+        WHY NOT System.out.println()?
+        -----------------------------------------------------
+
+        ❌ No log levels
+        ❌ Cannot disable selectively
+        ❌ No file persistence
+        ❌ Not production-ready
+        ❌ Hard to trace issues in large systems
+
+        =====================================================
+        2. WHAT IS LOGGER?
+        =====================================================
+
+        A Logger is an object used to write log messages.
+
+        In Spring Boot, logging is handled using:
+
+        👉 SLF4J (Simple Logging Facade for Java)
+        👉 Logback (default implementation)
+
+        -----------------------------------------------------
+        SLF4J (INTERFACE LAYER)
+        -----------------------------------------------------
+
+        SLF4J = Logging abstraction layer
+
+        It does NOT log directly.
+        It delegates logging to implementation like Logback.
+
+        Think:
+
+        SLF4J = Remote control
+        Logback = TV
+
+        -----------------------------------------------------
+        LOGGER DEFINITION
+        -----------------------------------------------------
+
+        A logger is created per class:
+
+        Example:
+
+        Logger logger = LoggerFactory.getLogger(EmployeeService.class);
+
+        OR (Recommended in Spring Boot):
+
+        @Slf4j (Lombok annotation)
+
+        which auto-generates:
+
+        private static final Logger log =
+        LoggerFactory.getLogger(CurrentClass.class);
+
+        =====================================================
+        3. LOG LEVELS (VERY IMPORTANT)
+        =====================================================
+
+        Log levels define severity and filtering order:
+
+        TRACE < DEBUG < INFO < WARN < ERROR
+
+        -----------------------------------------------------
+        DESCRIPTION:
+        -----------------------------------------------------
+
+        TRACE → Very detailed flow (method entry/exit)
+
+        DEBUG → Technical debugging info
+
+        INFO → Normal business flow (important events)
+
+        WARN → Unexpected but recoverable issues
+
+        ERROR → Application failure / exceptions
+
+        -----------------------------------------------------
+        RULE:
+        -----------------------------------------------------
+
+        If ROOT LEVEL = INFO:
+
+        ✔ INFO, WARN, ERROR → visible
+        ❌ DEBUG, TRACE → hidden
+
+        =====================================================
+        4. WHAT IS LOGBACK?
+        =====================================================
+
+        Logback is the default logging framework in Spring Boot.
+
+        It controls:
+
+        ✔ Where logs go (console/file)
+        ✔ How logs look (format/pattern)
+        ✔ What logs are allowed (levels)
+        ✔ File rotation (rolling logs)
+
+        -----------------------------------------------------
+        LOGBACK COMPONENTS:
+        -----------------------------------------------------
+
+        1. Logger → produces logs
+        2. Appender → sends logs somewhere
+        3. Encoder → formats logs
+        4. Pattern → defines structure
+        5. Configuration file → logback-spring.xml
+
+        =====================================================
+        5. logback-spring.xml (CORE CONFIG FILE)
+        =====================================================
+
+        This file is used to configure logging behavior.
+
+        Location:
+
+        src/main/resources/logback-spring.xml
+
+        -----------------------------------------------------
+        WHAT IT CONTROLS:
+        -----------------------------------------------------
+
+        ✔ Global log level (ROOT logger)
+        ✔ Package-specific log levels
+        ✔ Console logging
+        ✔ File logging
+        ✔ Rolling file strategy
+        ✔ Log format pattern
+
+        =====================================================
+        6. LOGGING FLOW (HOW IT WORKS)
+        =====================================================
+
+        Application Code
+              ↓
+        SLF4J Logger (log.info / log.debug)
+              ↓
+        Logback Framework
+              ↓
+        Filters logs based on level
+              ↓
+        Appenders (Console / File)
+              ↓
+        Formatted Output
+
+        =====================================================
+        7. APPENDERS (WHERE LOGS GO)
+        =====================================================
+
+        1. CONSOLE APPENDER
+        --------------------
+        Prints logs in terminal
+
+        2. FILE APPENDER
+        ----------------
+        Writes logs into a file
+
+        3. ROLLING FILE APPENDER
+        ------------------------
+        Creates new files automatically:
+
+        ✔ Daily logs
+        ✔ Size-based logs
+        ✔ Archiving old logs
+
+        =====================================================
+        8. LOG PATTERN (FORMAT OF LOGS)
+        =====================================================
+
+        Example pattern:
+
+        %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n
+
+        -----------------------------------------------------
+        MEANING:
+        -----------------------------------------------------
+
+        %d → Date & Time
+        %level → INFO / DEBUG / ERROR
+        %thread → Thread name
+        %logger → Class name
+        %msg → Log message
+        %n → New line
+
+        =====================================================
+        9. ROOT LOGGER
+        =====================================================
+
+        Defines default logging level:
+
+        <root level="INFO">
+
+        Meaning:
+        - Global minimum level = INFO
+        - DEBUG/TRACE ignored unless overridden
+
+        =====================================================
+        10. PACKAGE LEVEL LOGGING
+        =====================================================
+
+        You can control logging per package:
+
+        Example:
+
+        com.example.service → DEBUG
+        com.example.controller → INFO
+
+        This helps isolate logs per layer.
+
+        =====================================================
+        11. HOW YOUR PROJECT LOGGING WORKS
+        =====================================================
+
+        -----------------------------------------------------
+        CONTROLLER:
+        -----------------------------------------------------
+
+        logger.info("getEmployee id:{}", id);
+
+        ✔ Logs incoming API request
+
+        -----------------------------------------------------
+        SERVICE:
+        -----------------------------------------------------
+
+        log.trace("Entering method");
+        log.info("Fetching employee by ID");
+        log.error("If employee not found");
+
+        ✔ Handles business logic logs
+        ✔ Tracks flow
+        ✔ Captures exceptions
+
+        -----------------------------------------------------
+        REPOSITORY:
+        -----------------------------------------------------
+
+        Handled internally by Spring Data JPA
+
+        =====================================================
+        12. YOUR CURRENT FLOW (REAL EXECUTION)
+        =====================================================
+
+        Client Request
+           ↓
+        Controller (logs request)
+           ↓
+        Service (logs business logic)
+           ↓
+        Repository (DB call)
+           ↓
+        Service (mapping + utilities)
+           ↓
+        Response returned
+
+        =====================================================
+        13. IMPORTANT CONCEPTS TO REMEMBER
+        =====================================================
+
+        ✔ Logger is per class
+        ✔ Log levels control visibility
+        ✔ Logback controls output
+        ✔ Configuration is externalized
+        ✔ TRACE/DEBUG are OFF by default
+        ✔ Spring Boot uses Logback by default
+
+        =====================================================
+        14. BEST PRACTICES
+        =====================================================
+
+        ✔ Use @Slf4j instead of manual logger
+        ✔ Avoid System.out.println()
+        ✔ Use parameterized logs:
+
+        log.info("ID: {}", id);  ✔ GOOD
+        log.info("ID: " + id);   ❌ BAD
+
+        ✔ Log meaningful business events
+        ✔ Avoid logging sensitive data
+
+        =====================================================
+        15. SUMMARY
+        =====================================================
+
+        Logging = Observability tool of application
+
+        SLF4J = Interface
+        Logback = Implementation
+        Logger = Class-level object
+        logback-spring.xml = Control center
+
+        =====================================================
+        END OF NOTES
+        =====================================================
